@@ -6,7 +6,7 @@ Need go-rs/crypto package for cookie encryption & decryption.
 
 ````
 var c crypto.AESGCM
-_ = c.Init("0123456789abcdefg", "0123456789abcd0123456789")
+_ = c.Config("0123456789abcdefg", "0123456789abcd0123456789")
 
 api.Use(cookie.Load(c))
 
