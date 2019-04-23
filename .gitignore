@@ -12,6 +12,6 @@
 *.out
 
 # editors
-.idea
 .DS_Store
 .vscode
+.idea
