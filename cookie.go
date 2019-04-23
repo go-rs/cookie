@@ -12,48 +12,48 @@ import (
 	"github.com/go-rs/rest-api-framework"
 )
 
-var x crypto.AESGCM
+var algo crypto.AESGCM
 
 type Cookie struct {
 	ctx *rest.Context
 }
 
-func (c *Cookie) Set(cookie *http.Cookie) {
+func (c *Cookie) Set(cookie *http.Cookie) (err error) {
 	http.SetCookie(c.ctx.Response, cookie)
+	return
 }
 
-func (c *Cookie) SetSigned(cookie *http.Cookie) error {
-	var err error
-	cookie.Value, err = x.Encrypt(cookie.Value)
+func (c *Cookie) SetSigned(cookie *http.Cookie) (err error) {
+	cookie.Value, err = algo.Encrypt(cookie.Value)
 	if err != nil {
-		return err
+		return
 	}
 	http.SetCookie(c.ctx.Response, cookie)
-	return err
+	return
 }
 
-func (c *Cookie) Get(name string) string {
+func (c *Cookie) Get(name string) (val string) {
 	cookie, err := c.ctx.Request.Cookie(name)
 	if err != nil {
-		return ""
+		return
 	}
 	return cookie.Value
 }
 
-func (c *Cookie) GetSigned(name string) string {
+func (c *Cookie) GetSigned(name string) (val string) {
 	cookie, err := c.ctx.Request.Cookie(name)
 	if err != nil {
-		return ""
+		return
 	}
-	decrypted, err := x.Decrypt(cookie.Value)
+	val, err = algo.Decrypt(cookie.Value)
 	if err != nil {
-		return ""
+		return
 	}
-	return decrypted
+	return
 }
 
-func Load(cr crypto.AESGCM) rest.Handler {
-	x = cr
+func Load(x crypto.AESGCM) rest.Handler {
+	algo = x
 	return func(ctx *rest.Context) {
 		ctx.Set("Cookie", Cookie{ctx})
 	}
